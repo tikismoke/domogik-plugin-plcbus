@@ -21,7 +21,7 @@ along with Domogik. If not, see U{http://www.gnu.org/licenses}.
 Plugin purpose
 ==============
 
-Get event from PLCBUS and send them on xPL
+Get event from PLCBUS and send them on MQ
 
 Implements
 ==========
@@ -29,7 +29,7 @@ Implements
 - serialHandler
 
 @author: Yoann HINARD <yoann.hinard@gmail.com>
-@copyright: (C) 2007-2012 Domogik project
+@copyright: (C) 2007-2016 Domogik project
 @license: GPL(v3)
 @organization: Domogik
 """
@@ -50,7 +50,7 @@ class serialHandler(threading.Thread):
     Threaded class to handle serial port in PLCbus communication
     Send PLCBUS frames when available in the send_queue and manage
     retransmission if needed
-    Put received frames in the receveive_queue (to be sent on the xPL network
+    Put received frames in the receveive_queue (to be sent on the MQ network
     """
 
     def __init__(self, serial_port_no, command_cb, message_cb):

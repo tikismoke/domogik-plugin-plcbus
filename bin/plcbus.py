@@ -22,50 +22,48 @@ along with Domogik. If not, see U{http://www.gnu.org/licenses}.
 Plugin purpose
 ==============
 
-xPL PLCBUS client
+PLCBUS client
 
 Implements
 ==========
 
-- plcbusMain.__init__(self)
-- plcbusMain.plcbus_cmnd_cb(self, message)
-- plcbusMain.plcbus_send_ack(self, message)
+- plcbusManager.__init__(self)
+- plcbusManager.plcbus_cmnd_cb(self, message)
+- plcbusManager.plcbus_send_ack(self, message)
 
 @author: Francois PINET <domopyx@gmail.com>
-@copyright: (C) 2007-2012 Domogik project
+@copyright: (C) 2007-2016 Domogik project
 @license: GPL(v3)
 @organization: Domogik
 """
 
-from domogik.xpl.common.xplconnector import Listener, XplTimer
-from domogik.xpl.common.plugin import XplPlugin
-from domogik.xpl.common.xplmessage import XplMessage
-from domogik_packages.xpl.lib.plcbus import PLCBUSAPI
-from domogik.xpl.common.queryconfig import Query
+from domogik.common.plugin import Plugin
+from domogikmq.message import MQMessage
+from domogik_packages.plugin_plcbus.lib.plcbus import PLCBUSAPI
 import threading
 import time
+import re
 
-class PlcBusMain(XplPlugin):
+class PlcBusManager(Plugin):
     ''' Manage PLCBus technology, send and receive order/state
     '''
 
     def __init__(self):
         '''
-        Create the plcbusMain class
-        This class is used to connect PLCBUS to the xPL Network
-        '''
+	    Manages the plcbus domogik plugin
+	    '''
         # Load config
-        XplPlugin.__init__(self, name = 'plcbus')
+        Plugin.__init__(self, name = 'plcbus')
+
         # Create listeners
         Listener(self._plcbus_cmnd_cb, self.myxpl, {
             'schema': 'plcbus.basic',
             'xpltype': 'xpl-cmnd',
         })
-        self._config = Query(self.myxpl, self.log)
-        device = self._config.query('plcbus', 'device')
-        self._usercode = self._config.query('plcbus', 'usercode')
-        self._probe_inter = int( self._config.query('plcbus', 'probe-interval'))
-        self._probe_list = self._config.query('plcbus', 'probe-list')
+        device = self.get_config('device')
+        self._usercode = self.get_config('usercode')
+        self._probe_inter = int( self.get_config('probe-interval'))
+        self._probe_list = self.get_config('probe-list')
 
         # Create log instance
         self.api = PLCBUSAPI(self.log, device, self._command_cb, self._message_cb)
@@ -179,19 +177,9 @@ class PlcBusMain(XplPlugin):
                            "command": f["d_command"], "data1": f["d_data1"], "data2": f["d_data2"]})
             self.myxpl.send(mess)
 
-#           Workaround to for switch widget go ON when dimmer is send
-#        if f["d_command"] == 'PRESET_DIM' and f["d_data1"] != 0 : 
-#            print('WORKAROUD : on fait suivre le DIM d un ON pour garder les widgets switch allumes')
-            #print("data1 : %s " % f["d_data1"])
-#            mess = XplMessage()
-#            mess.set_type('xpl-stat')
-#            mess.set_schema('plcbus.basic')
-#            mess.add_data({"usercode" : f["d_user_code"], "device": f["d_home_unit"], "command": 'ON'})
-#            self.myxpl.send(mess)
-
     def _message_cb(self, message):
         print("Message : %s " % message)
 
 if __name__ == "__main__":
-    PlcBusMain()
+    PlcBusManager()
 

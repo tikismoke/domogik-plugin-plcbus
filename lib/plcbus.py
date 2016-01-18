@@ -38,12 +38,12 @@ Implements
 - PLCBUSAPI:.def get_all_on_id(self, usercode, housecode):
 
 @author: Domogik project
-@copyright: (C) 2007-2012 Domogik project
+@copyright: (C) 2007-2016 Domogik project
 @license: GPL(v3)
 @organization: Domogik
 """
 
-from domogik_packages.xpl.lib.PLCBusSerialHandler import serialHandler
+from domogik_packages.plugin_plcbus.lib.PLCBusSerialHandler import serialHandler
 
 
 class PLCBUSException(Exception):
@@ -211,14 +211,14 @@ class PLCBUSAPI:
         '''
         onlist = []
         self.send("GET_ALL_ON_ID_PULSE", housecode + "1", usercode)
-#        response = self._ser_handler.get_from_answer_queue()
-#        if(response):
-#            print "Hoora response received", response
-#            data = int(response[10:14], 16)
-#            for i in range(0, 16):
-#                if data >> i & 1:
-#                    onlist.append(housecode + str(self._unitcodes[i]))
-#        print "on :", onlist
+        response = self._ser_handler.get_from_answer_queue()
+        if(response):
+            print "Hoora response received", response
+            data = int(response[10:14], 16)
+            for i in range(0, 16):
+                if data >> i & 1:
+                    onlist.append(housecode + str(self._unitcodes[i]))
+        print "on :", onlist
 #        return onlist
 
     def stop(self):
@@ -226,32 +226,3 @@ class PLCBUSAPI:
         """
         self._log.debug("Stopping plcbus serial library")
         self._ser_handler.stop()
-
-
-
-##test
-#a = PLCBUSAPI("/dev/ttyUSB0")
-##a.get_all_on_id("00","B")
-#print "--------------ON------------------"
-#a.send("ON", "B2", "00")
-#time.sleep(3)
-#print "--------------STATUS------------------"
-#a.send("STATUS_REQUEST", "B2", "00")
-#time.sleep(3)
-#print "----------------OFF----------------"
-#a.send("OFF", "B2", "00")
-#time.sleep(3)
-#print "---------------STATUS-----------------"
-#a.send("STATUS_REQUEST", "B2", "00")
-#time.sleep(3)
-##print "---------------BRIGHT-----------------"
-##a.send("BRIGHT", "B2", "00", "100","100")
-##time.sleep(10)
-##print "---------------DIM-----------------"
-##a.send("DIM", "B2", "00", "50","0")
-##time.sleep(3)
-#print "---------------STATUS-----------------"
-#a.send("STATUS_REQUEST", "B2", "00")
-#time.sleep(5)
-#a.stop()
-#

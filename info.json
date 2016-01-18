@@ -10,7 +10,7 @@
         },
 	{
             "default": "FF",
-	    "key": "usercode",
+	        "key": "usercode",
             "name": "Usercode",
             "description": "Usercode value (between 00 and FF)",
             "required": "yes",
@@ -19,12 +19,19 @@
         {
             "default": "",
             "name": "Housecode",
-    	    "key": "housecode ",
+    	    "key": "probe-list",
             "required": "no",
             "description": "Housecode to probe. If you know you don't use an house code remove it from the list.",
             "type": "string"
+        },
+        {
+            "default": "0",
+            "name": "Interval",
+    	    "key": "probe-interval",
+            "required": "yes",
+            "description": "Interval between 2 probes to discover devices and check their state (0 = don't do probing).",
+            "type": "integer"
         }
-
     ], 
     "xpl_commands": {},
     "xpl_stats": {},
