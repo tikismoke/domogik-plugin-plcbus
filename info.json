@@ -1,0 +1,96 @@
+{
+    "configuration": [
+        {
+            "default": "/dev/ttyUSB0", 
+            "description": "Plcbus device (/dev/ttyUSB0 for serial)", 
+            "key": "device", 
+            "name": "Device",
+            "required": "yes", 
+            "type": "string"
+        },
+	{
+            "default": "FF",
+	    "key": "usercode",
+            "name": "Usercode",
+            "description": "Usercode value (between 00 and FF)",
+            "required": "yes",
+	    "type": "string"
+        },
+        {
+            "default": "",
+            "name": "Housecode",
+    	    "key": "housecode ",
+            "required": "no",
+            "description": "Housecode to probe. If you know you don't use an house code remove it from the list.",
+            "type": "string"
+        }
+
+    ], 
+    "xpl_commands": {},
+    "xpl_stats": {},
+    "commands": {
+       "set_level_bin": {
+           "name": "Switch On or Off",
+           "return_confirmation": true,
+           "parameters": [
+               {
+                   "key": "level",
+                   "data_type": "DT_Switch",
+                   "conversion": "from_DT_Switch_to_level"
+               }
+           ]
+        }
+        
+    },
+    "sensors": {
+        "level_bin": {
+            "name": "level sensor",
+            "data_type": "DT_Switch",
+            "conversion": "from_level_to_DT_Switch",
+            "incremental": false,
+            "timeout": 0,
+            "history": {
+                "store": true,
+                "duplicate": false,
+                "max": 0,
+                "expire": 0,
+                "round_value": 0
+            }
+        }
+    },
+    "device_types": {
+        "plcbus.switch": {
+            "id": "plcbus.switch",
+            "description": "Switch one channel on a device", 
+            "name": "Switch",
+            "commands": ["set_level_bin"],
+            "sensors": ["level_bin"],
+            "parameters": [
+                {
+                    "key": "address",
+                    "xpl": false,
+                    "description": "Device adress (Like A1, BF, etc)",
+                    "type": "string"
+                },
+                {
+                    "key": "housecode ",
+                    "xpl": false,
+                    "description": "Housecode to probe. If you know you don't use an house code remove it from the list.",
+                    "type": "string"
+                }
+            ]
+        }
+    }, 
+    "identity": {
+        "author": "tikismoke", 
+        "author_email": "new.domodroid at gmail.com", 
+        "dependencies": [], 
+        "description": "Plcbus interface", 
+        "domogik_min_version": "0.5.0", 
+        "name": "plcbus", 
+        "type": "plugin", 
+        "version": "0.1",
+        "tags": ["plcbus", "light", "switch"]
+    }, 
+    "json_version": 2
+}
