@@ -37,14 +37,15 @@ Implements
 @organization: Domogik
 """
 
-from domogik.common.plugin import Plugin
-from domogikmq.message import MQMessage
+from domogik.xpl.common.xplmessage import XplMessage
+from domogik.xpl.common.plugin import XplPlugin
+from domogik.xpl.common.xplconnector import Listener
 from domogik_packages.plugin_plcbus.lib.plcbus import PLCBUSAPI
 import threading
 import time
 import re
 
-class PlcBusManager(Plugin):
+class PlcBusManager(XplPlugin):
     ''' Manage PLCBus technology, send and receive order/state
     '''
 
@@ -53,7 +54,20 @@ class PlcBusManager(Plugin):
 	    Manages the plcbus domogik plugin
 	    '''
         # Load config
-        Plugin.__init__(self, name = 'plcbus')
+        XplPlugin.__init__(self, name = 'plcbus')
+
+        # register helpers
+        self.register_helper('scan', 'test help', 'scan')
+
+        # Create listeners
+        Listener(self._plcbus_cmnd_cb, self.myxpl, {
+            'schema': 'plcbus.basic',
+            'xpltype': 'xpl-cmnd',
+        })
+
+        # check if the plugin is configured. If not, this will stop the plugin and log an error
+        if not self.check_configured():
+            return
 
         device = self.get_config('device')
         self._usercode = self.get_config('usercode')
@@ -67,9 +81,9 @@ class PlcBusManager(Plugin):
             self.log.warning("The probe interval has been set to 0. This is not correct. The plugin will use a probe interval of 5 seconds")
             self._probe_inter = 5 
         self._probe_status = {}
-#        self._probe_thr = XplTimer(self._probe_inter, self._send_probe, self.myxpl)
+        self._probe_thr = XplTimer(self._probe_inter, self._send_probe, self.myxpl)
         self._probe_thr.start()
-#       self.register_timer(self._probe_thr)
+#        self.register_timer(self._probe_thr)
         self.enable_hbeat()
 
     def _send_probe(self):
@@ -157,20 +171,20 @@ class PlcBusManager(Plugin):
                         command = "ON"
                     else:
                         command ="OFF"
-#                    mess = XplMessage()
-#                    mess.set_type('xpl-trig')
-#                    mess.set_schema('plcbus.basic')
-#                    mess.add_data({"usercode" : f["d_user_code"], "device": code,
-#                                   "command": command})
-#                    self.myxpl.send(mess)
+                    mess = XplMessage()
+                    mess.set_type('xpl-trig')
+                    mess.set_schema('plcbus.basic')
+                    mess.add_data({"usercode" : f["d_user_code"], "device": code,
+                                   "command": command})
+                    self.myxpl.send(mess)
                 item = item - 1
-#        else:
-#            mess = XplMessage()
-#            mess.set_type('xpl-trig')
-#            mess.set_schema('plcbus.basic')
-#            mess.add_data({"usercode" : f["d_user_code"], "device": f["d_home_unit"],
-#                           "command": f["d_command"], "data1": f["d_data1"], "data2": f["d_data2"]})
-#            self.myxpl.send(mess)
+        else:
+            mess = XplMessage()
+            mess.set_type('xpl-trig')
+            mess.set_schema('plcbus.basic')
+            mess.add_data({"usercode" : f["d_user_code"], "device": f["d_home_unit"],
+                           "command": f["d_command"], "data1": f["d_data1"], "data2": f["d_data2"]})
+            self.myxpl.send(mess)
 
     def _message_cb(self, message):
         print("Message : %s " % message)
