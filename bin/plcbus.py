@@ -39,7 +39,7 @@ Implements
 
 from domogik.xpl.common.xplmessage import XplMessage
 from domogik.xpl.common.plugin import XplPlugin
-from domogik.xpl.common.xplconnector import Listener
+from domogik.xpl.common.xplconnector import Listener, XplTimer
 from domogik_packages.plugin_plcbus.lib.plcbus import PLCBUSAPI
 import threading
 import time
@@ -85,9 +85,9 @@ class PlcBusManager(XplPlugin):
             self.log.warning("The probe interval has been set to 0. This is not correct. The plugin will use a probe interval of 5 seconds")
             self._probe_inter = 5 
         self._probe_status = {}
-#        self._probe_thr = XplTimer(self._probe_inter, self._send_probe, self.myxpl)
-#        self._probe_thr.start()
-#        self.register_timer(self._probe_thr)
+        self._probe_thr = XplTimer(self._probe_inter, self._send_probe, self.myxpl)
+        self._probe_thr.start()
+        self.register_timer(self._probe_thr)
         self.enable_hbeat()
 
     def _send_probe(self):

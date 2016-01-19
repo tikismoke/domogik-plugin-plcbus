@@ -33,10 +33,36 @@
             "type": "integer"
         }
     ], 
-    "xpl_commands": {},
-    "xpl_stats": {},
+    "xpl_commands": {
+	    "set_level_bin": {
+            "name": "blah",
+            "schema": "plcbub.basic",
+            "xplstat_name": "get_level_bin",
+            "parameters": {
+                "static": [],
+                "device": []
+        	}
+            }
+        },
+    "xpl_stats": {
+	    "get_level_bin": {
+            "name": "get_level_bin",
+            "schema": "lighting.device",
+            "parameters": {
+                "static": [],
+                "device": [],
+                "dynamic": [
+                    {
+                         "key": "level",
+                         "ignore_values": "",
+                         "sensor": "level_bin"
+                    }
+            	]
+        	}
+    	    }
+    },
     "commands": {
-       "set_level_bin": {
+       "set_level_bin" : {
            "name": "Switch On or Off",
            "return_confirmation": true,
            "parameters": [
@@ -45,9 +71,9 @@
                    "data_type": "DT_Switch",
                    "conversion": "from_DT_Switch_to_level"
                }
-           ]
-        }
-        
+           ],
+	"xpl_command": "set_level_bin"
+	}        
     },
     "sensors": {
         "level_bin": {
@@ -77,12 +103,6 @@
                     "key": "address",
                     "xpl": false,
                     "description": "Device adress (Like A1, BF, etc)",
-                    "type": "string"
-                },
-                {
-                    "key": "housecode ",
-                    "xpl": false,
-                    "description": "Housecode to probe. If you know you don't use an house code remove it from the list.",
                     "type": "string"
                 }
             ]
