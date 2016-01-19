@@ -55,21 +55,25 @@ class PlcBusManager(XplPlugin):
 	    '''
         # Load config
         XplPlugin.__init__(self, name = 'plcbus')
+	
+	### get the devices list
+        # for this plugin, if no devices are created we won't be able to use devices.
+        # but.... if we stop the plugin right now, we won't be able to detect existing device and send events about them
+        # so we don't stop the plugin if no devices are created
+        self.devices = self.get_device_list(quit_if_no_device = False)
 
         # register helpers
         self.register_helper('scan', 'test help', 'scan')
 
         # Create listeners
-        Listener(self._plcbus_cmnd_cb, self.myxpl, {
-            'schema': 'plcbus.basic',
-            'xpltype': 'xpl-cmnd',
-        })
+        Listener(self._plcbus_cmnd_cb, self.myxpl, {'schema': 'plcbus.basic','xpltype': 'xpl-cmnd',})
 
         # check if the plugin is configured. If not, this will stop the plugin and log an error
         if not self.check_configured():
             return
 
-        device = self.get_config('device')
+        ### get all config keys
+        device = str(self.get_config('device'))
         self._usercode = self.get_config('usercode')
         self._probe_inter = int( self.get_config('probe-interval'))
         self._probe_list = self.get_config('probe-list')
@@ -81,8 +85,8 @@ class PlcBusManager(XplPlugin):
             self.log.warning("The probe interval has been set to 0. This is not correct. The plugin will use a probe interval of 5 seconds")
             self._probe_inter = 5 
         self._probe_status = {}
-        self._probe_thr = XplTimer(self._probe_inter, self._send_probe, self.myxpl)
-        self._probe_thr.start()
+#        self._probe_thr = XplTimer(self._probe_inter, self._send_probe, self.myxpl)
+#        self._probe_thr.start()
 #        self.register_timer(self._probe_thr)
         self.enable_hbeat()
 
