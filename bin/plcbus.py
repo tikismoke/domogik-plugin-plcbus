@@ -55,11 +55,6 @@ class PlcBusManager(Plugin):
         # Load config
         Plugin.__init__(self, name = 'plcbus')
 
-        # Create listeners
-        Listener(self._plcbus_cmnd_cb, self.myxpl, {
-            'schema': 'plcbus.basic',
-            'xpltype': 'xpl-cmnd',
-        })
         device = self.get_config('device')
         self._usercode = self.get_config('usercode')
         self._probe_inter = int( self.get_config('probe-interval'))
@@ -72,7 +67,7 @@ class PlcBusManager(Plugin):
             self.log.warning("The probe interval has been set to 0. This is not correct. The plugin will use a probe interval of 5 seconds")
             self._probe_inter = 5 
         self._probe_status = {}
-        self._probe_thr = XplTimer(self._probe_inter, self._send_probe, self.myxpl)
+#        self._probe_thr = XplTimer(self._probe_inter, self._send_probe, self.myxpl)
         self._probe_thr.start()
 #       self.register_timer(self._probe_thr)
         self.enable_hbeat()
@@ -162,20 +157,20 @@ class PlcBusManager(Plugin):
                         command = "ON"
                     else:
                         command ="OFF"
-                    mess = XplMessage()
-                    mess.set_type('xpl-trig')
-                    mess.set_schema('plcbus.basic')
-                    mess.add_data({"usercode" : f["d_user_code"], "device": code,
-                                   "command": command})
-                    self.myxpl.send(mess)
+#                    mess = XplMessage()
+#                    mess.set_type('xpl-trig')
+#                    mess.set_schema('plcbus.basic')
+#                    mess.add_data({"usercode" : f["d_user_code"], "device": code,
+#                                   "command": command})
+#                    self.myxpl.send(mess)
                 item = item - 1
-        else:
-            mess = XplMessage()
-            mess.set_type('xpl-trig')
-            mess.set_schema('plcbus.basic')
-            mess.add_data({"usercode" : f["d_user_code"], "device": f["d_home_unit"],
-                           "command": f["d_command"], "data1": f["d_data1"], "data2": f["d_data2"]})
-            self.myxpl.send(mess)
+#        else:
+#            mess = XplMessage()
+#            mess.set_type('xpl-trig')
+#            mess.set_schema('plcbus.basic')
+#            mess.add_data({"usercode" : f["d_user_code"], "device": f["d_home_unit"],
+#                           "command": f["d_command"], "data1": f["d_data1"], "data2": f["d_data2"]})
+#            self.myxpl.send(mess)
 
     def _message_cb(self, message):
         print("Message : %s " % message)
