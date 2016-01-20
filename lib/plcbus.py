@@ -219,7 +219,7 @@ class PLCBUSAPI:
                 if data >> i & 1:
                     onlist.append(housecode + str(self._unitcodes[i]))
         print "on :", onlist
-#        return onlist
+        return onlist
 
     def stop(self):
         """ Ask thread to stop

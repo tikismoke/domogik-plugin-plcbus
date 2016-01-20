@@ -88,7 +88,8 @@ class PlcBusManager(XplPlugin):
         self._probe_thr = XplTimer(self._probe_inter, self._send_probe, self.myxpl)
         self._probe_thr.start()
         self.register_timer(self._probe_thr)
-        self.enable_hbeat()
+        self.ready()
+
 
     def _send_probe(self):
         """ Send probe message 
@@ -172,23 +173,26 @@ class PlcBusManager(XplPlugin):
                     print('DEBUG in rentre dans le IF detection GET_ALL_ON')
                     self._probe_status[code] = str(unit)
                     if unit == 1:
-                        command = "ON"
+                        command = "1"
                     else:
-                        command ="OFF"
+                        command = "0"
                     mess = XplMessage()
                     mess.set_type('xpl-trig')
                     mess.set_schema('plcbus.basic')
-                    mess.add_data({"usercode" : f["d_user_code"], "device": code,
-                                   "command": command})
+                    mess.add_data({"address": code, "level": command})
+#                    mess.add_data({"usercode" : f["d_user_code"], "address": code,
+#                                   "level": command})
                     self.myxpl.send(mess)
+	            print("message XPL : %s" % mess)
                 item = item - 1
         else:
             mess = XplMessage()
             mess.set_type('xpl-trig')
             mess.set_schema('plcbus.basic')
-            mess.add_data({"usercode" : f["d_user_code"], "device": f["d_home_unit"],
-                           "command": f["d_command"], "data1": f["d_data1"], "data2": f["d_data2"]})
+            mess.add_data({"usercode" : f["d_user_code"], "address": f["d_home_unit"],
+                           "level": f["d_command"], "data1": f["d_data1"], "data2": f["d_data2"]})
             self.myxpl.send(mess)
+            print("message XPL : %s" % mess)
 
     def _message_cb(self, message):
         print("Message : %s " % message)

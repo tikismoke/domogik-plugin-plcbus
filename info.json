@@ -46,18 +46,18 @@
         },
     "xpl_stats": {
 	    "get_level_bin": {
-            "name": "get_level_bin",
-            "schema": "lighting.device",
-            "parameters": {
-                "static": [],
-                "device": [],
-                "dynamic": [
-                    {
-                         "key": "level",
-                         "ignore_values": "",
-                         "sensor": "level_bin"
-                    }
-            	]
+                "name": "get_level_bin",
+	        "schema": "plcbus.basic",
+    	        "parameters": {
+    		    "static": [],
+                    "device": [],
+	            "dynamic": [
+    	                {
+        	             "key": "level",
+            	             "ignore_values": "",
+            		     "sensor": "level_bin"
+                        }
+		    ]
         	}
     	    }
     },
@@ -69,7 +69,7 @@
                {
                    "key": "level",
                    "data_type": "DT_Switch",
-                   "conversion": "from_DT_Switch_to_level"
+                   "conversion": ""
                }
            ],
 	"xpl_command": "set_level_bin"
@@ -77,9 +77,9 @@
     },
     "sensors": {
         "level_bin": {
-            "name": "level sensor",
+            "name": "Switch",
             "data_type": "DT_Switch",
-            "conversion": "from_level_to_DT_Switch",
+	    "conversion": "",
             "incremental": false,
             "timeout": 0,
             "history": {
