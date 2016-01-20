@@ -39,6 +39,8 @@ Implements
 
 from domogik.common.plugin import Plugin
 from domogikmq.message import MQMessage
+from domogik.xpl.common.xplconnector import Listener, XplTimer
+
 from domogik_packages.plugin_plcbus.lib.plcbus import PLCBUSAPI
 import threading
 import time
@@ -55,22 +57,40 @@ class PlcBusManager(Plugin):
         # Load config
         Plugin.__init__(self, name = 'plcbus')
 
-        device = self.get_config('device')
+	### get the devices list
+        # for this plugin, if no devices are created we won't be able to use devices.
+        # but.... if we stop the plugin right now, we won't be able to detect existing device and send events about them
+        # so we don't stop the plugin if no devices are created
+        self.devices = self.get_device_list(quit_if_no_device = False)
+
+        # register helpers
+        self.register_helper('scan', 'test help', 'scan')
+
+        # Create listeners
+        Listener(self._plcbus_cmnd_cb, self.myxpl, {'schema': 'plcbus.basic','xpltype': 'xpl-cmnd',})
+
+        # check if the plugin is configured. If not, this will stop the plugin and log an error
+        if not self.check_configured():
+            return
+
+        ### get all config keys
+        plcbus_device = str(self.get_config('device'))
         self._usercode = self.get_config('usercode')
         self._probe_inter = int( self.get_config('probe-interval'))
         self._probe_list = self.get_config('probe-list')
 
         # Create log instance
-        self.api = PLCBUSAPI(self.log, device, self._command_cb, self._message_cb)
+        self.api = PLCBUSAPI(self.log, plcbus_device, self._command_cb, self._message_cb)
         self.add_stop_cb(self.api.stop)
         if self._probe_inter == 0:
             self.log.warning("The probe interval has been set to 0. This is not correct. The plugin will use a probe interval of 5 seconds")
             self._probe_inter = 5 
         self._probe_status = {}
-#        self._probe_thr = XplTimer(self._probe_inter, self._send_probe, self.myxpl)
+        self._probe_thr = XplTimer(self._probe_inter, self._send_probe, self.myxpl)
         self._probe_thr.start()
-#       self.register_timer(self._probe_thr)
-        self.enable_hbeat()
+        self.register_timer(self._probe_thr)
+        self.ready()
+
 
     def _send_probe(self):
         """ Send probe message 
@@ -154,23 +174,25 @@ class PlcBusManager(Plugin):
                     print('DEBUG in rentre dans le IF detection GET_ALL_ON')
                     self._probe_status[code] = str(unit)
                     if unit == 1:
-                        command = "ON"
+                        command = 1
                     else:
-                        command ="OFF"
+                        command = 0
 #                    mess = XplMessage()
 #                    mess.set_type('xpl-trig')
 #                    mess.set_schema('plcbus.basic')
-#                    mess.add_data({"usercode" : f["d_user_code"], "device": code,
-#                                   "command": command})
+#                    mess.add_data({"address": code, "level": command})
 #                    self.myxpl.send(mess)
+#	            print("message XPL : %s" % mess)
                 item = item - 1
-#        else:
+        else:
+            print("else")
 #            mess = XplMessage()
 #            mess.set_type('xpl-trig')
 #            mess.set_schema('plcbus.basic')
-#            mess.add_data({"usercode" : f["d_user_code"], "device": f["d_home_unit"],
-#                           "command": f["d_command"], "data1": f["d_data1"], "data2": f["d_data2"]})
+#            mess.add_data({"usercode" : f["d_user_code"], "address": f["d_home_unit"],
+#                           "level": int(f["d_command"]), "data1": f["d_data1"], "data2": f["d_data2"]})
 #            self.myxpl.send(mess)
+#            print("message XPL : %s" % mess)
 
     def _message_cb(self, message):
         print("Message : %s " % message)
