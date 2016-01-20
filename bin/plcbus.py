@@ -73,13 +73,13 @@ class PlcBusManager(XplPlugin):
             return
 
         ### get all config keys
-        device = str(self.get_config('device'))
+        plcbus_device = str(self.get_config('device'))
         self._usercode = self.get_config('usercode')
         self._probe_inter = int( self.get_config('probe-interval'))
         self._probe_list = self.get_config('probe-list')
 
         # Create log instance
-        self.api = PLCBUSAPI(self.log, device, self._command_cb, self._message_cb)
+        self.api = PLCBUSAPI(self.log, plcbus_device, self._command_cb, self._message_cb)
         self.add_stop_cb(self.api.stop)
         if self._probe_inter == 0:
             self.log.warning("The probe interval has been set to 0. This is not correct. The plugin will use a probe interval of 5 seconds")
@@ -92,6 +92,7 @@ class PlcBusManager(XplPlugin):
 
 
     def _send_probe(self):
+        print("send_probe(self)")
         """ Send probe message 
 
         """
@@ -104,6 +105,7 @@ class PlcBusManager(XplPlugin):
             time.sleep(1)
 
     def _plcbus_cmnd_cb(self, message):
+        print("plcbus_cmnd_cb(self, message):")
         '''
         General callback for all command messages
         '''
@@ -126,11 +128,10 @@ class PlcBusManager(XplPlugin):
             rate = message.data['data2']
         self.log.debug("%s received : device = %s, user code = %s, level = "\
                 "%s, rate = %s" % (cmd.upper(), dev, user, level, rate))
-#        if cmd == 'GET_ALL_ON_ID_PULSE':
-#            self.api.get_all_on_id(user, dev)
-#        else:
-        self.api.send(cmd.upper(), dev, user, level, rate)
-#       Workaround to send an ON command when dimmer = 0
+        if cmd == 'GET_ALL_ON_ID_PULSE':
+            self.api.get_all_on_id(user, dev)
+        else:
+            self.api.send(cmd.upper(), dev, user, level, rate)
         if cmd == 'PRESET_DIM' and level == 0:
             print("cmd : %s " % cmd)
             print("level : %s " % level)     
@@ -149,6 +150,7 @@ class PlcBusManager(XplPlugin):
         @param : plcbus frame as an array
         '''
         if f["d_command"] == "GET_ALL_ID_PULSE":
+            print("elif fd_command =GET ALL  PULSE ")
             data = int("%s%s" % (f["d_data1"], f["d_data2"]))
             house = f["d_home_unit"][0]
             for i in range(0,16):
@@ -160,6 +162,7 @@ class PlcBusManager(XplPlugin):
                 elif (not unit) and code in self._probe_status:
                     del self._probe_status[code]
         elif f["d_command"] == "GET_ALL_ON_ID_PULSE":
+            print("elif fd_command =GET ALL ON ID PULSE ")
             data = "%s%s" % (bin(f["d_data1"])[2:].zfill(8), bin(f["d_data2"])[2:].zfill(8))
             print("f : %s" % f)
             print("data : %s" % data)
@@ -180,12 +183,11 @@ class PlcBusManager(XplPlugin):
                     mess.set_type('xpl-trig')
                     mess.set_schema('plcbus.basic')
                     mess.add_data({"address": code, "level": command})
-#                    mess.add_data({"usercode" : f["d_user_code"], "address": code,
-#                                   "level": command})
                     self.myxpl.send(mess)
 	            print("message XPL : %s" % mess)
                 item = item - 1
         else:
+            print("else")
             mess = XplMessage()
             mess.set_type('xpl-trig')
             mess.set_schema('plcbus.basic')
