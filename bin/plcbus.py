@@ -176,9 +176,9 @@ class PlcBusManager(XplPlugin):
                     print('DEBUG in rentre dans le IF detection GET_ALL_ON')
                     self._probe_status[code] = str(unit)
                     if unit == 1:
-                        command = "1"
+                        command = 1
                     else:
-                        command = "0"
+                        command = 0
                     mess = XplMessage()
                     mess.set_type('xpl-trig')
                     mess.set_schema('plcbus.basic')
@@ -192,7 +192,7 @@ class PlcBusManager(XplPlugin):
             mess.set_type('xpl-trig')
             mess.set_schema('plcbus.basic')
             mess.add_data({"usercode" : f["d_user_code"], "address": f["d_home_unit"],
-                           "level": f["d_command"], "data1": f["d_data1"], "data2": f["d_data2"]})
+                           "level": int(f["d_command"]), "data1": f["d_data1"], "data2": f["d_data2"]})
             self.myxpl.send(mess)
             print("message XPL : %s" % mess)
 
