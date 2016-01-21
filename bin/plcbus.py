@@ -97,10 +97,10 @@ class PlcBusManager(XplPlugin):
 
         """
         for h in self._probe_list:
-            self.log.debug("send get_all_id")
+            print("send get_all_id")
             self.api.send("GET_ALL_ID_PULSE", h, self._usercode, 0, 0)
             time.sleep(1)
-            self.log.debug("send get_all_on_id")
+            print("send get_all_on_id")
             self.api.send("GET_ALL_ON_ID_PULSE", h, self._usercode, 0, 0)
             time.sleep(1)
 
@@ -114,7 +114,8 @@ class PlcBusManager(XplPlugin):
         user = '00'
         level = 0
         rate = 0
-        if 'command' in message.data:
+        print("xpl message receive %s" % message.data)
+	if 'command' in message.data:
             cmd = message.data['command']
         if 'device' in message.data:
             dev = message.data['device'].upper()
@@ -151,7 +152,11 @@ class PlcBusManager(XplPlugin):
         '''
         if f["d_command"] == "GET_ALL_ID_PULSE":
             print("elif fd_command =GET ALL  PULSE ")
-            data = int("%s%s" % (f["d_data1"], f["d_data2"]))
+#           data = int("%s%s" % (f["d_data1"], f["d_data2"]))
+#	    Workaround with autodetection problem force data to 511
+#	    to consider discover of device with value from 0 to 9
+#	    Could also be set to 4095 to force from 0 to F
+	    data=511
             house = f["d_home_unit"][0]
             for i in range(0,16):
                 unit = data >> i & 1
@@ -179,6 +184,7 @@ class PlcBusManager(XplPlugin):
                         command = 1
                     else:
                         command = 0
+		    self.log.info("New status for device : %s is now %s " % (code, command))
                     mess = XplMessage()
                     mess.set_type('xpl-trig')
                     mess.set_schema('plcbus.basic')
