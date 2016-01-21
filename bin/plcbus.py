@@ -66,9 +66,6 @@ class PlcBusManager(XplPlugin):
         # register helpers
         self.register_helper('scan', 'test help', 'scan')
 
-        # Create listeners
-        Listener(self._plcbus_cmnd_cb, self.myxpl, {'schema': 'plcbus.basic', 'xpltype': 'xpl-cmnd',})
-
         # check if the plugin is configured. If not, this will stop the plugin and log an error
         if not self.check_configured():
             return
@@ -79,9 +76,13 @@ class PlcBusManager(XplPlugin):
         self._probe_inter = int(self.get_config('probe-interval'))
         self._probe_list = self.get_config('probe-list')
 
-        # Create log instance
-        self.api = PLCBUSAPI(self.log, plcbus_device, self._command_cb, self._message_cb)
-        self.add_stop_cb(self.api.stop)
+        # Init Plcbus
+        self.manager  = PLCBUSAPI(self.log, plcbus_device, self._command_cb, self._message_cb)
+        self.add_stop_cb(self.manager.stop)
+
+    	# Create the xpl listeners
+        Listener(self._plcbus_cmnd_cb, self.myxpl, {'xpltype': 'xpl-cmnd', 'schema': 'plcbus.basic'})
+
         if self._probe_inter == 0:
             self.log.warning(
                 "The probe interval has been set to 0. This is not correct. The plugin will use a probe interval of 5 seconds")
@@ -99,10 +100,10 @@ class PlcBusManager(XplPlugin):
         """
         for h in self._probe_list:
             print("send get_all_id")
-            self.api.send("GET_ALL_ID_PULSE", h, self._usercode, 0, 0)
+            self.manager.send("GET_ALL_ID_PULSE", h, self._usercode, 0, 0)
             time.sleep(1)
             print("send get_all_on_id")
-            self.api.send("GET_ALL_ON_ID_PULSE", h, self._usercode, 0, 0)
+            self.manager.send("GET_ALL_ON_ID_PULSE", h, self._usercode, 0, 0)
             time.sleep(1)
 
     def _plcbus_cmnd_cb(self, message):
@@ -115,7 +116,7 @@ class PlcBusManager(XplPlugin):
         user = '00'
         level = 0
         rate = 0
-        print("xpl message receive %s" % message.data)
+        print("xpl message receive %s" % message)
         if 'command' in message.data:
             cmd = message.data['command']
         if 'device' in message.data:
@@ -131,19 +132,19 @@ class PlcBusManager(XplPlugin):
         self.log.debug("%s received : device = %s, user code = %s, level = " \
                        "%s, rate = %s" % (cmd.upper(), dev, user, level, rate))
         if cmd == 'GET_ALL_ON_ID_PULSE':
-            self.api.get_all_on_id(user, dev)
+            self.manager.get_all_on_id(user, dev)
         else:
-            self.api.send(cmd.upper(), dev, user, level, rate)
+            self.manager.send(cmd.upper(), dev, user, level, rate)
         if cmd == 'PRESET_DIM' and level == 0:
             print("cmd : %s " % cmd)
             print("level : %s " % level)
-            self.api.send("OFF", dev, user)
+            self.manager.send("OFF", dev, user)
 
         if cmd == 'PRESET_DIM' and level != 0:
             print('WORKAROUD : on fait suivre le DIM d un ON pour garder les widgets switch allumes')
             print("DEBUG cmd : %s " % cmd)
             print("DEBUG level : %s " % level)
-            self.api.send("ON", dev, user)
+            self.manager.send("ON", dev, user)
 
     def _command_cb(self, f):
         ''' Called by the plcbus library when a command has been sent.
