@@ -36,7 +36,7 @@
     "xpl_commands": {
 	    "set_level_bin": {
                 "name": "Set level",
-	        "schema": "plcbub.basic",
+	        "schema": "plcbus.basic",
     	        "xplstat_name": "get_level_bin",
         	"parameters": {
             	    "static": [],
