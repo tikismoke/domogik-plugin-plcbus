@@ -6,7 +6,5 @@ Table Of Content
 
 .. toctree::
 
-    /script
-    /dev
-    /tests
+    /plcbus
     /changelog
