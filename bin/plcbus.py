@@ -121,20 +121,31 @@ class PlcBusManager(XplPlugin):
             cmd = message.data['command']
         if 'device' in message.data:
             dev = message.data['device'].upper()
+        if 'address' in message.data:
+            dev = message.data['address'].upper()
         if 'usercode' in message.data:
             user = message.data['usercode']
         else:
             user = self._usercode
+        if 'level' in message.data:
+            level = message.data['level']
+	    if level == "1":
+		cmd = "ON"
+	    else:
+	        cmd = "OFF"
         if 'data1' in message.data:
             level = message.data['data1']
         if 'data2' in message.data:
             rate = message.data['data2']
+#        self.log.debug("%s received : device = %s, user code = %s, level = " \
+#                       "%s, rate = %s" % (cmd.upper(), dev, user, level, rate))
         self.log.debug("%s received : device = %s, user code = %s, level = " \
-                       "%s, rate = %s" % (cmd.upper(), dev, user, level, rate))
+                       "%s, rate = %s" % (cmd, dev, user, level, rate))
         if cmd == 'GET_ALL_ON_ID_PULSE':
             self.manager.get_all_on_id(user, dev)
         else:
-            self.manager.send(cmd.upper(), dev, user, level, rate)
+#            self.manager.send(cmd.upper(), dev, user, level, rate)
+            self.manager.send(cmd, dev, user, level, rate)
         if cmd == 'PRESET_DIM' and level == 0:
             print("cmd : %s " % cmd)
             print("level : %s " % level)
@@ -195,11 +206,15 @@ class PlcBusManager(XplPlugin):
                 item = item - 1
         else:
             print("else")
+            if f["d_command"] == "ON":
+                command = 1
+            else:
+                command = 0
             mess = XplMessage()
             mess.set_type('xpl-trig')
             mess.set_schema('plcbus.basic')
             mess.add_data({"usercode": f["d_user_code"], "address": f["d_home_unit"],
-                           "level": int(f["d_command"]), "data1": f["d_data1"], "data2": f["d_data2"]})
+                           "level": command, "data1": f["d_data1"], "data2": f["d_data2"]})
             self.myxpl.send(mess)
             print("message XPL : %s" % mess)
 
