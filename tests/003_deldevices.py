@@ -9,7 +9,7 @@ import sys
 if __name__ == "__main__":
 
     # set up the plugin name
-    name = "notify"
+    name = "plcbus"
 
     # load the test devices class
     td = TestDevice()
