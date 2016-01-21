@@ -21,7 +21,7 @@ along with Domogik. If not, see U{http://www.gnu.org/licenses}.
 Plugin purpose
 ==============
 
-Get event from PLCBUS and send them on MQ
+Get event from PLCBUS and send them on Xpl
 
 Implements
 ==========

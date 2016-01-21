@@ -6,3 +6,4 @@ Changelog
 ===
 
 * Plugin creation
+* Adapt the old domogik 0.3 from : Yoann HINARD <yoann.hinard at gmail.com>, Francois PINET <domopyx at gmail.com>
