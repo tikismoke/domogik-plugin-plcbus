@@ -35,14 +35,14 @@
     ], 
     "xpl_commands": {
 	    "set_level_bin": {
-            "name": "blah",
-            "schema": "plcbub.basic",
-            "xplstat_name": "get_level_bin",
-            "parameters": {
-                "static": [],
-                "device": []
-        	}
-            }
+                "name": "Set level",
+	        "schema": "plcbub.basic",
+    	        "xplstat_name": "get_level_bin",
+        	"parameters": {
+            	    "static": [],
+                    "device": []
+	        }
+    	    }
         },
     "xpl_stats": {
 	    "get_level_bin": {
@@ -101,8 +101,8 @@
             "parameters": [
                 {
                     "key": "address",
-                    "xpl": false,
-                    "description": "Device adress (Like A1, BF, etc)",
+                    "xpl": true,
+                    "description": "Device adress (Like A1, B2, etc)",
                     "type": "string"
                 }
             ]
